@@ -20,7 +20,7 @@ def get_seq(target_f):
 def main():
 
     if len(sys.argv)<2:
-        print USAGE
+        print(USAGE)
         sys.exit()
 
     target= sys.argv[1]
@@ -68,6 +68,7 @@ def main():
                     break
             aln+=[[title,seq,ini1,fin1]]
 
+
     Naln=len(aln)
 #    msafile=target+".msa"
 #    fp_msa=open(msafile,"w")
@@ -85,6 +86,8 @@ def main():
     k=0
     title_old=""
     check=0
+    con = None
+
     for i in range(0,Naln) :
         title=aln[i][0]
         seq=aln[i][1]

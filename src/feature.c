@@ -220,24 +220,29 @@ double **read_ss2(char *target, int Nres )
     char amino,ss;
     double **ss2;
 
-    ss2=darray2(Nres,3);
+    ss2 = darray2(Nres, 3);
+    printf("[feature.read_ss2()] Spawned array of shape (%d, %d)", Nres, 3); 
 
     sprintf(filename,"%s.ss2",target);
     fp=fopen(filename, "r");
-    i=-1;
-    while(fgets(line,maxline,fp)!=NULL)
-    {
-        if(strlen(line)<=10)
-        {
+    i = 0 ;
+    while(fgets(line, maxline, fp) != NULL) {
+        ///printf("begin fgets\n`");
+        if(strlen(line) <= 10) {
             continue;
         }
-        if(line[0]=='#')
-        {
-            continue;
-        }
-        i+=1;
-        sscanf(line,"%d %c %c %lf %lf %lf",&j,&amino,&ss,&ss2[i][0],&ss2[i][1],&ss2[i][2]);
 
+        if(line[0] == '#') {
+            continue;
+        }
+        
+        //printf("Scanning ...\n");
+        //printf("Raw: %s", line);
+        sscanf(line,"%d %c %c %lf %lf %lf",&j,&amino,&ss,&ss2[i][0],&ss2[i][1],&ss2[i][2]);
+        //printf(line,"%d %c %c %lf %lf %lf\n",&j,&amino,&ss,&ss2[i][0],&ss2[i][1],&ss2[i][2]);
+        //printf("i=%d\n", i);
+        i++;
+        // i += 1;
     }
 
     fclose(fp) ;
@@ -322,6 +327,7 @@ void find_inifin(char line[], int *ini, int *fin)
     char cini[10], cfin[10];
     char chr='-';
     int i, k, len ;
+
     len=strlen(line);
     for(i=0;i<len;i++)
     {
@@ -349,23 +355,23 @@ void find_inifin(char line[], int *ini, int *fin)
 
 }
 
-int find_Nmsa(char *target)
-{
+int find_Nmsa(char *target) {
     FILE *fp;
     char filename[100];
     char line[maxline];
     int k;
+
     sprintf(filename,"%s.msa",target);
     fp=fopen(filename, "r");
     k=0;
-    while(fgets(line,maxline,fp)!=NULL)
-    {
-        if(line[0]=='>')
-        {
+    while(fgets(line,maxline,fp)!=NULL) {
+        if(line[0]=='>') {
             k+=1;
         }
     }
+
     fclose(fp);
+
     return k;
 }
 
@@ -383,42 +389,35 @@ void read_msa(char *target, int **msa, int **msa2, int *pasinfo, int Nres, int N
     sprintf(filename,"%s.msa",target);
     fp=fopen(filename, "r");
     k=-1;
-    while(fgets(line,maxline,fp)!=NULL)
-    {
-        if(line[0]=='>')
-        {
+
+    while(fgets(line,maxline,fp)!=NULL) {
+        if(line[0]=='>') {
             k+=1;
-            for(i=0;i<Nres;i++)
-            {
+            for(i=0;i<Nres;i++) {
                 msa2[k][i]=0;
             }
+
             ptr=strtok(line,delim);
-            while(ptr=strtok(NULL,delim))
-            {
+            while(ptr=strtok(NULL,delim)) {
                 strcpy(inifin,ptr);
 
                 find_inifin(inifin,&ini,&fin); 
-                for(i=ini-1;i<=fin-1;i++)
-                {
+                for(i=ini-1;i<=fin-1;i++) {
                     msa2[k][i]=1;
                 }
             }
-            if((ini>20)||(fin<=Nres-20))
-            {
+
+            if((ini>20)||(fin<=Nres-20)) {
                 pasinfo[k]=1;
-            }
-            else
-            {
+
+            } else {
                 pasinfo[k]=0;
             }
             continue;
         }
-        for(i=0;i<Nres;i++)
-        {
-            for(j=0;j<=Ntype;j++)
-            {
-                if(line[i]==seqcode1[j] || j==Ntype)
-                {
+        for(i=0;i<Nres;i++) {
+            for(j=0;j<=Ntype;j++) {
+                if(line[i]==seqcode1[j] || j==Ntype) {
                     msa[k][i]=j;
                     break ;
                 }
@@ -427,7 +426,6 @@ void read_msa(char *target, int **msa, int **msa2, int *pasinfo, int Nres, int N
 
     }
     fclose(fp);
-
 } 
 
 
@@ -444,32 +442,25 @@ double **gen_profile(int **msa, int Nres, int Nmsa)
     frequency=iarray2(Nres,Ntype);
 
     #pragma omp parallel for private(i,j)
-    for(i=0;i<Nres;i++)
-    {
-        for(j=0;j<Ntype;j++)
-        {
+    for(i=0;i<Nres;i++) {
+        for(j=0;j<Ntype;j++) {
             frequency[i][j]=0;
         }
     }
 
     #pragma omp parallel for private(i,k,type)
-    for(i=0;i<Nres;i++)
-    { 
-        for(k=0;k<Nmsa;k++)
-        {
+    for(i=0;i<Nres;i++) { 
+        for(k=0;k<Nmsa;k++) {
             type=msa[k][i];
-            if(type<Ntype)
-            {
+            if(type<Ntype) {
                 frequency[i][type]+=1;
             }
         }
     }
 
     #pragma omp parallel for private(i,j)
-    for(i=0;i<Nres;i++)
-    {
-        for(j=0;j<Ntype;j++)
-        {
+    for(i=0;i<Nres;i++) {
+        for(j=0;j<Ntype;j++) {
             profile[i][j]=(double) frequency[i][j] /(double) Nmsa;
         }
     }
@@ -504,8 +495,7 @@ double **read_profile(char *target, int Nres)
 
     k=-1;
 
-    while(fgets(line,maxline,fp)!=NULL)
-    {
+    while(fgets(line,maxline,fp)!=NULL) {
         k+=1;
         profile[k][0]=0.0;
         m=0;
@@ -514,8 +504,7 @@ double **read_profile(char *target, int Nres)
         m+=1;
         profile[k][m]=atof(ptr);
 //        printf("%s ",ptr);
-        while(ptr=strtok(NULL,delim))
-        {
+        while(ptr=strtok(NULL,delim)) {
             m+=1;
             profile[k][m]=atof(ptr);
 //            printf("%s ",ptr);
@@ -530,7 +519,6 @@ double **read_profile(char *target, int Nres)
 //        }
 //        printf("\n");
 //    }
-
     return profile;
 }
 
@@ -551,10 +539,8 @@ void get_n_signal(int **msa2, double **msig5, double **psig5, int **Nsite, int N
     Nsig5=iarray2(Nres,3);
 
     #pragma omp parallel for private(i,j)
-    for(i=0;i<Nres;i++)
-    {
-        for(j=0;j<=2;j++)
-        {
+    for(i=0;i<Nres;i++) {
+        for(j=0;j<=2;j++) {
             Nsig[i][j]=0;
             Nsig5[i][j]=0;
             Nsite[i][j]=0;
@@ -568,17 +554,13 @@ void get_n_signal(int **msa2, double **msig5, double **psig5, int **Nsite, int N
 //Nsig[i][2]: right_gap
 
     #pragma omp parallel for private(i,k)
-    for(i=1;i<Nres-1;i++)
-    {
-        for(k=0;k<Nmsa;k++)
-        {
-            if((msa2[k][i-1]==0)&&(msa2[k][i]==1))
-            {
+    for(i=1;i<Nres-1;i++) {
+        for(k=0;k<Nmsa;k++) {
+            if((msa2[k][i-1]==0)&&(msa2[k][i]==1)) {
                 Nsig[i][0]+=1;
                 Nsig[i][1]+=1;
             }
-            else if((msa2[k][i]==1)&&(msa2[k][i+1]==0))
-            {
+            else if((msa2[k][i]==1)&&(msa2[k][i+1]==0)) {
                 Nsig[i][0]+=1;
                 Nsig[i][2]+=1;
             }
@@ -586,19 +568,16 @@ void get_n_signal(int **msa2, double **msig5, double **psig5, int **Nsite, int N
     }
 
     #pragma omp parallel for private(i,j,ini,fin,l)
-    for(i=0;i<Nres;i++)
-    {
+    for(i=0;i<Nres;i++) {
         ini=-5;
         fin=5;
-        if(i<5)
-        {
+        if(i<5) {
             ini=-i;
             Nsite[i][0]+=(5-i);
             Nsite[i][1]+=(5-i);
         }
 
-        if(i>Nres-6)
-        {
+        if(i>Nres-6) {
             fin=Nres-i-1;
             Nsite[i][0]+=(i-(Nres-6));
             Nsite[i][2]+=(i-(Nres-6));
@@ -607,24 +586,18 @@ void get_n_signal(int **msa2, double **msig5, double **psig5, int **Nsite, int N
 //            printf("i:%d ini:%d fin:%d \n",i,ini,fin);
 
 
-        for(l=ini;l<=fin;l++)
-        {
-            for(j=0;j<=2;j++)
-            {
+        for(l=ini;l<=fin;l++) {
+            for(j=0;j<=2;j++) {
                 Nsig5[i][j]+=Nsig[i+l][j];
-                if(Nsig[i+l][j]>0)
-                {
-
+                if(Nsig[i+l][j]>0) {
                     Nsite[i][j]+=1;
                 }
-
             }
         }
     }
 
     #pragma omp parallel for private(i)
-    for(i=0;i<Nres;i++)
-    {
+    for(i=0;i<Nres;i++) {
         Nsite[i][0]= Nsite[i][1]+ Nsite[i][2];
 //        printf("%d %d %d %d",i,Nsig[i][0],Nsig[i][1],Nsig[i][2]);
 //        printf("%d %d %d %d\n",i,Nsite[i][0],Nsite[i][1],Nsite[i][2]);
@@ -634,47 +607,36 @@ void get_n_signal(int **msa2, double **msig5, double **psig5, int **Nsite, int N
 
 
     ggap=20*Nres/100;
-    if(ggap<60)
-    {
+    if(ggap<60) {
         ggap=60;
     }
 //    ggap=0;
     ini=ggap;
     fin=Nres-ggap;
 //    printf("ggap %d \n",ggap);
-    for(j=0;j<=2;j++)
-    {
+    for(j=0;j<=2;j++) {
         maxsig5[j]=1;
-        for(i=ini;i<fin;i++)
-        {
-            if(maxsig5[j]<Nsig5[i][j])
-            {
+        for(i=ini;i<fin;i++) {
+            if(maxsig5[j]<Nsig5[i][j]) {
                 maxsig5[j]=Nsig5[i][j];
             }
         }
 //        printf("maxsig= %d\n", maxsig5[j]);
-        for(i=0;i<Nres;i++)
-        {
-            if(maxsig5[j]<Nsig5[i][j])
-            {
+        for(i=0;i<Nres;i++) {
+            if(maxsig5[j]<Nsig5[i][j]) {
                 Nsig5[i][j]=maxsig5[j];
             }
         }
     }
 
-    for(j=0;j<=2;j++)
-    {
+    for(j=0;j<=2;j++) {
         sum[j]=0.0;
         sum2[j]=0.0;
-        for(i=0;i<Nres;i++)
-        {
-            if(j>0)
-            {
+        for(i=0;i<Nres;i++) {
+            if(j>0) {
                 psig5[i][j]=((double) Nsig5[i][j]/ ((double) Nmsa)) ;
                 msig5[i][j]=((double) Nsig5[i][j]/ ((double) maxsig5[j])) ;
-            }  
-            else
-            {
+            } else {
                 psig5[i][j]=((double) Nsig5[i][j]/ ((double) Nmsa * 2.0)) ;
                 msig5[i][j]=((double) Nsig5[i][j]/ ((double) maxsig5[j] * 2.0)) ;
             }
@@ -682,7 +644,6 @@ void get_n_signal(int **msa2, double **msig5, double **psig5, int **Nsite, int N
     }
 
     free_iarray2(Nsig5);
-
     return ;
 }
 
@@ -948,17 +909,14 @@ void sum_PAS2(double **PASaveN2, double **PASaveC2, double *PASmaxN, double *PAS
 
 }
 
-void write_PAS(double **PAS, char *out_PAS, int Nres)
-{
+void write_PAS(double **PAS, char *out_PAS, int Nres) {
     FILE *fp_PAS;
     int i,j;
 
     fp_PAS=fopen(out_PAS,"w");
 
-    for(i=0;i<Nres;i++)
-    {
-        for(j=0;j<Nres;j++)
-        {
+    for(i=0;i<Nres;i++) {
+        for(j=0;j<Nres;j++) {
             fprintf(fp_PAS,"%4d %4d %8.6f\n", i+1,j+1,PAS[i][j]);
         }
     }
@@ -1266,6 +1224,7 @@ int main(int argc, char *argv[])
     int fsim,fsjn;
     time_t time_0, time_now, running_time;
 
+
     if(argc==1)
     {
         printf("mi target\n");
@@ -1273,7 +1232,7 @@ int main(int argc, char *argv[])
     }
     target=argv[1];
 
-    printf("target: %s\n",target);
+    printf("[feature] target: %s\n",target);
 
     Ncpu=1 ;
     if(argc>=3)
@@ -1281,23 +1240,20 @@ int main(int argc, char *argv[])
         Ncpu=atoi(argv[2]);
     }
     omp_set_num_threads(Ncpu);
-    printf("Ncpu: %d\n",Ncpu);
+    printf("[feature] Ncpu: %d\n",Ncpu);
 
     time(&time_0);
-    printf("%s",ctime(&time_0));
+    printf("[feature] %s",ctime(&time_0));
 
     seq=read_seq(target,&Nres);
     seqn=mod_seq(seq,Nres);
 
-    printf("Nres: %d\n",Nres) ;
+    printf("[feature] Nres: %d\n",Nres) ;
 
     ss2=read_ss2(target,Nres);
-//    printf("read_ss2\n");
-
-//    for(i=0;i<Nres;i++)
-//    {
-//        printf("%4d %5.3f %5.3f %5.3f\n",i, ss2[i][0],ss2[i][1],ss2[i][2]);
-//    }
+    printf("[feature] SS2"); 
+ 
+    // for(i=0;i<Nres;i++) { printf("%4d %5.3f %5.3f %5.3f\n",i, ss2[i][0],ss2[i][1],ss2[i][2]); }
 
     sa2=read_sa2(target,Nres);
 //    printf("read_sa2\n");
@@ -1397,15 +1353,15 @@ int main(int argc, char *argv[])
 //        printf("%d %f %f %f\n",i,psig5[i][0],psig5[i][1],psig5[i][2]);
 //    }
 
-    PAS=darray2(Nres,Nres);
-    PAS2=darray2(Nres,Nres);
-    PAS3=darray2(Nres,Nres);
-    PASaveN=darray2(Nres,2*win_PAS+1);
-    PASaveC=darray2(Nres,2*win_PAS+1);
-    PASaveN2=darray2(Nres,win_PAS2);
-    PASaveC2=darray2(Nres,win_PAS2);
-    PASmaxN=darray1(Nres);
-    PASmaxC=darray1(Nres);
+    PAS      = darray2(Nres, Nres);
+    PAS2     = darray2(Nres, Nres);
+    PAS3     = darray2(Nres, Nres);
+    PASaveN  = darray2(Nres, 2*win_PAS + 1);
+    PASaveC  = darray2(Nres, 2*win_PAS + 1);
+    PASaveN2 = darray2(Nres, win_PAS2);
+    PASaveC2 = darray2(Nres, win_PAS2);
+    PASmaxN  = darray1(Nres);
+    PASmaxC  = darray1(Nres);
 
     if(Npasinfo>0)
     {
@@ -1498,8 +1454,8 @@ int main(int argc, char *argv[])
 //        printf("%d %6.4f\n",j, ccm_comm[j]);
 //    }
 
-    sprintf(out_feature,"%s_feature.txt",target);
-    sprintf(out_feature2,"%s_feature2.txt",target);
+    sprintf(out_feature,"%s.feature.txt",target);
+    sprintf(out_feature2,"%s.feature2.txt",target);
     fp_feature=fopen(out_feature,"w");
     fp_feature2=fopen(out_feature2,"w");
 
@@ -1718,53 +1674,60 @@ int main(int argc, char *argv[])
 
     fclose(fp_feature) ;
     fclose(fp_feature2) ;
+    printf("[feature] Wrote feature files.\n");
 
 
-    sprintf(out_PAS,"%s_PAS.txt",target);
-    write_PAS(PAS,out_PAS,Nres) ;
+    //sprintf(out_PAS,"%s_PAS.txt",target);
+    //write_PAS(PAS,out_PAS,Nres) ;
+    //printf("[feature] Wrote PAS file.\n");
 
-    sprintf(out_PAS2,"%s_PAS2.txt",target);
-    write_PAS(PAS2,out_PAS2,Nres) ;
+    //sprintf(out_PAS2,"%s_PAS2.txt",target);
+    //write_PAS(PAS2,out_PAS2,Nres) ;
+    //printf("[feature] Wrote PAS2 file.\n");
 
-    sprintf(out_PAS3,"%s_PAS3.txt",target);
-    write_PAS(PAS3,out_PAS3,Nres) ;
+    //sprintf(out_PAS3,"%s_PAS3.txt",target);
+    //write_PAS(PAS3,out_PAS3,Nres) ;
+    //printf("[feature] Wrote PAS3 file.\n");
 
 
-    sprintf(out_ccm,"result_ccm2.txt");
-    write_ccm(ccmpred,ccm_cut,out_ccm,Nres);
-    sprintf(out_community,"community_ccm2.txt");
-    write_community(ccm_community,out_community,Nres);
+    //sprintf(out_ccm,"result_ccm2.txt");
+    //write_ccm(ccmpred,ccm_cut,out_ccm,Nres);
+    //printf("[feature] Wrote ccm2 file.\n");
+    //sprintf(out_community,"community_ccm2.txt");
+    //write_community(ccm_community,out_community,Nres);
+    //printf("[feature] Wrote ccm community file.\n");
 
-    print_time(time_0);
+    //print_time(time_0);
+    //printf("[feature] Freeing.\n");
 
-    free_cstring(seq);
-    
-    free_iarray1(seqn);
-    free_darray1(ccm_community);
-    free_darray1(ccm_comm);
-    free_darray1(PASmaxN);
-    free_darray1(PASmaxC);
+    //free_cstring(seq);
+    //
+    //free_iarray1(seqn);
+    //free_darray1(ccm_community);
+    //free_darray1(ccm_comm);
+    //free_darray1(PASmaxN);
+    //free_darray1(PASmaxC);
 
-    free_iarray2(msa);
-    free_iarray2(msa2);
-    free_iarray2(Nsite);
+    //free_iarray2(msa);
+    //free_iarray2(msa2);
+    //free_iarray2(Nsite);
 
-    free_darray2(ss2);
-    free_darray2(sa2);
-    free_darray2(profile);
-    free_darray2(ccmpred);
+    //free_darray2(ss2);
+    //free_darray2(sa2);
+    //free_darray2(profile);
+    //free_darray2(ccmpred);
 
-    free_darray2(msig5);
-    free_darray2(psig5);
+    //free_darray2(msig5);
+    //free_darray2(psig5);
 
-    free_darray2(PAS);
-    free_darray2(PAS2);
-    free_darray2(PAS3);
+    //free_darray2(PAS);
+    //free_darray2(PAS2);
+    //free_darray2(PAS3);
 
-    free_darray2(PASaveN);
-    free_darray2(PASaveC);
-    free_darray2(PASaveN2);
-    free_darray2(PASaveC2);
+    //free_darray2(PASaveN);
+    //free_darray2(PASaveC);
+    //free_darray2(PASaveN2);
+    //free_darray2(PASaveC2);
 
 
 }

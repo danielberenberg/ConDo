@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import os, sys
 import numpy as np
 
@@ -47,6 +46,7 @@ def main ():
     weight_file=sys.argv[3]
 
     fea_npz=data_dir+"/data_feature.dat.npz"
+    print(f"[prediction] Loading {fea_npz}.")
     fea=np.load(fea_npz)    #1129 featrues
 
     X_pred=fea['feature']

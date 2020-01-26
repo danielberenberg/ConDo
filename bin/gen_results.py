@@ -26,7 +26,8 @@ def gen_results(target,conf_cut):
             score+=boundary_pred[i][j]
             line_out+="%f " %(boundary_pred[i][j])
         scores+=[score]
-        print >> fp_dom, i+1, score, line_out
+        print(i+1, score, line_out, file=fp_dom)
+
     npscores=np.array(scores)
     arg_scores=np.argsort(-npscores)
     fp_dom.close()
@@ -41,6 +42,7 @@ def gen_results(target,conf_cut):
             break
         if (k<1 or k>=Nseq-1) :
             continue
+
         check=0
         for bb in boundary:
             if abs(bb-(k+1))<40:
@@ -60,20 +62,20 @@ def gen_results(target,conf_cut):
         score=bd2[k][1]
         if (score>=conf_cut) and (i>NC and i< Nseq-NC-1):
             Ncount+=1
-        print "boundary:", boundary2[k]
+        print("boundary:", boundary2[k])
     
     if Ncount==0:
-        print target+": single-domain"
+        print(target+": single-domain")
         return
 
-    print target+ ": multi-domain"
+    print(target+ ": multi-domain")
 
     return
 
 def main ():
 
     if len(sys.argv)<2:
-        print USAGE
+        print(USAGE)
         sys.exit()
 
     target= sys.argv[1]
@@ -81,7 +83,7 @@ def main ():
     conf_cut=1.4
     if len(sys.argv)==3:
         conf_cut=float(sys.argv[2])
-    print "confidence cut-off", conf_cut
+    print("confidence cut-off", conf_cut)
     gen_results(target,conf_cut)
 
 if __name__ == '__main__':

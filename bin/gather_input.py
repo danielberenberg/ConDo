@@ -22,7 +22,7 @@ def get_seq(seq_file) :
 
 def main():
     if len(sys.argv)<2:
-        print USAGE
+        print(USAGE)
         sys.exit()
 
     data_feature=[]
@@ -43,7 +43,8 @@ def main():
         data_feature+=[np.array(feature[1:], dtype=np.float32)]
 
     data_feature=np.array(data_feature, dtype=np.float32)
-    outfile_feature = "data_feature.dat"
+    outfile_feature = target + "data_feature.dat"
+    print(f"[gather_input] Saving to {outfile_feature}.")
     np.savez(outfile_feature, feature=data_feature)
 
 

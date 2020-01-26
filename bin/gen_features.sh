@@ -1,4 +1,5 @@
 #!/bin/bash
+ConDo=/mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
 
 target=$1
 if [ $# -eq 1 ]
@@ -8,14 +9,14 @@ else
     ncpu=$2
 fi
 
-blastbin=/usr/bin
-dbname=/home1/shade/Database/uniref/20180131/uniref90.fasta
+blastbin=$ConDo/blast/bin
+dbname=$ConDo/uniref90/uniref90.fasta
 
-psipred=~/Programs/psipred
+psipred=$ConDo/psipred
 psipredbin=$psipred/bin
 psipreddata=$psipred/data
 
-condodir=~/ConDo
+condodir=$ConDo
 condobin=$condodir/bin
 condodata=$condodir/data
 

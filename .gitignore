@@ -1,0 +1,15 @@
+*.log
+test*
+*.PATH
+CCMpred
+hmmer*
+ncbi*
+nr*
+psipred
+uniref90
+sann
+*.swp
+paths.src.strucure
+tars
+blast/
+*.dat
