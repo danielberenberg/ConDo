@@ -8,14 +8,21 @@ Contact based protein Domain boundary prediction method
 
 # Dependencies
 - Bioinformatics software
-  - [PSIBLAST](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26)
-  - [HHblitz](https://github.com/soedinglab/hh-suite.git)
-  - [PSIPRED](http://bioinfadmin.cs.ucl.ac.uk/downloads/psipred)
-  - [SANN](https://github.com/newtonjoo/sann)
+  + [BLAST](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
+    - Any version with `blastpgp` will probably work. We use `2.2.26`.
+
+  + [HHblitz](https://github.com/soedinglab/hh-suite.git)
+  + [PSIPRED](http://bioinfadmin.cs.ucl.ac.uk/downloads/psipred)
+  + [SANN](https://github.com/newtonjoo/sann)
 - Other packages
-  * Python 3 (v3.6.5+)
-  * Tensorflow (tested on v1.14)
-  * `gcc`
+  + Python 3 (v3.6.5+)
+  + Tensorflow (tested on v1.14)
+  + `gcc`
+- Databases
+  + [UniRef90](https://www.uniprot.org/downloads)
+    - For BLAST.
+  + [UniClust30](http://gwdu111.gwdg.de/~compbiol/uniclust/2018_08/)
+    - For HHSearch.
 
 # Installation
 To be described
