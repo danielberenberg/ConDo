@@ -12,7 +12,7 @@ Contact based protein Domain boundary prediction method
 <a name="bioinf"></a>
 ## Bioinformatics software
 - [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-  - Any version with `blastpgp` will probably work. We use `2.2.26`.
+  - Any version with `blastpgp` will probably work (we use `2.2.26`).
   - Direct FTP: `ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/`
 - [HHblitz](https://github.com/soedinglab/hh-suite.git)
 - [PSIPRED](http://bioinfadmin.cs.ucl.ac.uk/downloads/psipred)
@@ -20,9 +20,9 @@ Contact based protein Domain boundary prediction method
 - [SANN](https://github.com/newtonjoo/sann)
 ##  Databases
 - [UniRef90](https://www.uniprot.org/downloads)
-  - For BLAST.
+  - For BLAST (we use the most current version).
 - [UniClust30](http://gwdu111.gwdg.de/~compbiol/uniclust/2018_08/)
-  - For HHSearch.
+  - For HHSearch (we use `2018_08`).
 <a name="other"></a>
 ## Other packages
 - Python 3 (v3.6.5+)
@@ -30,7 +30,11 @@ Contact based protein Domain boundary prediction method
 - `gcc`
 
 # Installation
-To be described
+- Installing dependencies
+  - TODO
+- Installing ConDo
+  - TODO
+
 # References
 Hong, Seung Hwan, Keehyoung Joo, and Jooyoung Lee. "ConDo: Protein domain boundary prediction using coevolutionary information." Bioinformatics (2018).
 
