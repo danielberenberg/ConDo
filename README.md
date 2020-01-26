@@ -1,6 +1,10 @@
 # ConDo
 Contact based protein Domain boundary prediction method
 
+# Dependencies
+# Installation
+# References
+
 # Pre-requisite:
 
 PSIBLAST: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26
@@ -110,9 +114,22 @@ plot result_ccm2.txt u 1:2:3 w image
 plot community_ccm2.txt u 1:2 w lp
 
 # References:
-
 Hong, Seung Hwan, Keehyoung Joo, and Jooyoung Lee. "ConDo: Protein domain boundary prediction using coevolutionary information." Bioinformatics (2018).
 
-https://academic.oup.com/bioinformatics/advance-article-abstract/doi/10.1093/bioinformatics/bty973/5221017
-
-
+```bibtex
+@article{10.1093/bioinformatics/bty973,
+    author = {Hong, Seung Hwan and Joo, Keehyoung and Lee, Jooyoung},
+    title = "{ConDo: protein domain boundary prediction using coevolutionary information}",
+    journal = {Bioinformatics},
+    volume = {35},
+    number = {14},
+    pages = {2411-2417},
+    year = {2018},
+    month = {11},
+    abstract = "{Domain boundary prediction is one of the most important problems in the study of protein structure and function. Many sequence-based domain boundary prediction methods are either template-based or machine learning (ML) based. ML-based methods often perform poorly due to their use of only local (i.e. short-range) features. These conventional features such as sequence profiles, secondary structures and solvent accessibilities are typically restricted to be within 20 residues of the domain boundary candidate.To address the performance of ML-based methods, we developed a new protein domain boundary prediction method (ConDo) that utilizes novel long-range features such as coevolutionary information in addition to the aforementioned local window features as inputs for ML. Toward this purpose, two types of coevolutionary information were extracted from multiple sequence alignment using direct coupling analysis: (i) partially aligned sequences, and (ii) correlated mutation information. Both the partially aligned sequence information and the modularity of residue–residue couplings possess long-range correlation information.https://github.com/gicsaw/ConDo.gitSupplementary data are available at Bioinformatics online.}",
+    issn = {1367-4803},
+    doi = {10.1093/bioinformatics/bty973},
+    url = {https://doi.org/10.1093/bioinformatics/bty973},
+    eprint = {https://academic.oup.com/bioinformatics/article-pdf/35/14/2411/28913279/bty973.pdf},
+}
+```
