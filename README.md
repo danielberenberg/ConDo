@@ -7,23 +7,23 @@ Contact based protein Domain boundary prediction method
 
 
 # Dependencies
-- Bioinformatics software
-  + [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-    - Any version with `blastpgp` will probably work. We use `2.2.26`.
-    - <a href="ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/">Direct FTP link</a>
+## Bioinformatics software
+- [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+  - Any version with `blastpgp` will probably work. We use `2.2.26`.
+  - Direct FTP: `ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/`
 
-  + [HHblitz](https://github.com/soedinglab/hh-suite.git)
-  + [PSIPRED](http://bioinfadmin.cs.ucl.ac.uk/downloads/psipred)
-  + [SANN](https://github.com/newtonjoo/sann)
-- Other packages
-  + Python 3 (v3.6.5+)
-  + Tensorflow (tested on v1.14)
-  + `gcc`
-- Databases
-  + [UniRef90](https://www.uniprot.org/downloads)
-    - For BLAST.
-  + [UniClust30](http://gwdu111.gwdg.de/~compbiol/uniclust/2018_08/)
-    - For HHSearch.
+- [HHblitz](https://github.com/soedinglab/hh-suite.git)
+- [PSIPRED](http://bioinfadmin.cs.ucl.ac.uk/downloads/psipred)
+- [SANN](https://github.com/newtonjoo/sann)
+## Other packages
+- Python 3 (v3.6.5+)
+- Tensorflow (tested on v1.14)
+- `gcc`
+##  Databases
+- [UniRef90](https://www.uniprot.org/downloads)
+  - For BLAST.
+- [UniClust30](http://gwdu111.gwdg.de/~compbiol/uniclust/2018_08/)
+  - For HHSearch.
 
 # Installation
 To be described
