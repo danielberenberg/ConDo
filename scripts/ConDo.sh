@@ -11,7 +11,8 @@ PRFX="[main]"
 ###################### PRELUDE #####################################
 ###### Paths for ConDo.
 export CONDO_DIR=/mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
-source ${CONDO_DIR}/ConDo.PATH
+CONDO_PATHS=${CONDO_DIR}/ConDo.PATH.djb
+source ${CONDO_PATHS} 
 echo "$PRFX Set all paths and variables."
 
 # error codes
@@ -21,10 +22,10 @@ POOR_INPUT=2
 
 
 #####
-SCRIPT="ConDo_2.sh"
+SCRIPT="ConDo"
 ####################### INVOCATION   #####################################
 usage() {
-    echo "Run the ConDo Domain Boundary Prediction pipeline."
+    echo "ConDo: CONtact based DOmain boundary prediction"
     echo "Usage: ${SCRIPT} <fasta> [processors]"
     echo -e "\t[processors] is either specified or defaulted to half of the total available processors."
     echo "------------------------------"
