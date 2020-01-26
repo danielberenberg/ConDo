@@ -8,8 +8,9 @@ Contact based protein Domain boundary prediction method
 
 # Dependencies
 - Bioinformatics software
-  + [BLAST](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
+  + [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
     - Any version with `blastpgp` will probably work. We use `2.2.26`.
+    - <a href="ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/">Direct FTP link</a>
 
   + [HHblitz](https://github.com/soedinglab/hh-suite.git)
   + [PSIPRED](http://bioinfadmin.cs.ucl.ac.uk/downloads/psipred)
