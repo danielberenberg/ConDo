@@ -7,59 +7,18 @@ module load intel/compiler/2019-3
 module load intel/mkl/2019-3
 
 
-###################### PRELUDE #####################################
-##### Paths for ConDo. (bin/ConDo.sh)
-export CONDO_DIR=/mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
-export CONDO_BIN=${CONDO_DIR}/bin
-export CONDO_DATA=${CONDO_DIR}/data
-export WEIGHT_FILE=${CONDO_DIR}/data/weight.h5
-
-##### Extra paths
-if [ -z ${DB_SHM_PATH} ]; then
-    echo "[critical] Cannot proceed without the existence of DB_SHM_PATH variable."
-    exit 1
-fi
-
-HH_INTEL=/mnt/ceph/users/mip/Programs/hh-suite/hh-suite/build_intel
-CAFA4_DATABASE=${DB_SHM_PATH}/uniclust30_2018_08/uniclust30_2018_08
-
-if [ ! -e $(dirname ${CAFA4_DATABASE}) ]; then
-    echo "[critical] Cannot proceed without the existence of ${CAFA4_DATABASE}."
-    exit 1
-fi
-
-##### Extra paths
-HH_INTEL=/mnt/ceph/users/mip/Programs/hh-suite/hh-suite/build_intel/
-UNIREF90=/mnt/ceph/users/protfold/FFPred/FFPred/uniref90/data/uniref90.fasta
-
-##### Paths for ConDo. (bin/ConDo.sh)
-CONDO_DIR=/mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
-
-##### Paths for JackHMMR (bin/run_jackhmmr.sh)
-HHPATH=${HH_INTEL}
-DATABASE=${UNIREF90}
-
-##### Paths for gen_features (bin/gen_features.sh)
-BLAST_BIN=${CONDO_DIR}/blast/bin
-DBNAME=${UNIREF90}
-PSIPRED=${CONDO_DIR}/psipred
-PSIPRED_BIN=${PSIPRED}/bin
-PSIPRED_DATA=${PSIPRED}/data
-SANN=${CONDO_DIR}/sann
-NNDB_HOME=${SANN}/nndb
-
-##### Paths for CCMpred (bin/run_ccmpred.sh)
-CCMPRED_BIN=${CONDO_DIR}/CCMpred/bin
-
-
 PRFX="[main]"
+###################### PRELUDE #####################################
+###### Paths for ConDo.
+export CONDO_DIR=/mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
+source ${CONDO_DIR}/ConDo.PATH
+echo "$PRFX Set all paths and variables."
 
 # error codes
 SUCCESS=0
 NO_OUTPUT=1
 POOR_INPUT=2
 
-echo "$PRFX Paths set."
 
 #####
 SCRIPT="ConDo_2.sh"
@@ -70,8 +29,8 @@ usage() {
     echo -e "\t[processors] is either specified or defaulted to half of the total available processors."
     echo "------------------------------"
     echo -e "Generates features:"
-    echo -e "\tJACKHMMER - Iterative profile based multipel sequence alignment against UniRef90."
-    echo -e "\tCCMpred   - Residue-Residue contact prediction usoing sequence alignment."
+    echo -e "\tHHSearch  - HMM assisted multiple sequence alignment."
+    echo -e "\tCCMpred   - Residue-Residue contact prediction using sequence alignment."
     echo -e "\tBLAST     - Position-specific scoring matrices against UniRef90."
     echo -e "\tSANN      - Solvent accessibility prediction."
     echo -e "\tPSIPRED   - Secondary structure prediction."

@@ -1,15 +1,25 @@
-*.log
-test*
-*.PATH
-CCMpred
-hmmer*
-ncbi*
-nr*
+
+
+# dependencies
 psipred
 uniref90
+CCMpred
+hmmer*
+blast
+ncbi*
 sann
+nr*
+
+# tests
+test*
+
+
+# large
+*.dat
+
+# ephemera 
+*.djb
+*.log
 *.swp
 paths.src.strucure
 tars
-blast/
-*.dat

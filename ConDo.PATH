@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+################################################
+#### Builds the path environment for ConDo. ####
+################################################
+
+##### Paths for ConDo. (bin/ConDo.sh)
+export CONDO_BIN=${CONDO_DIR}/bin
+export CONDO_SCRIPTS=${CONDO_DIR}/scripts
+export CONDO_DATA=${CONDO_DIR}/data
+export WEIGHT_FILE=${CONDO_DIR}/data/weight.h5
+
+## Database paths
+UNIREF90=
+DATABASE=${UNIREF90}
+DBNAME=${UNIREF90}
+
+export UNICLUST_DSK=
+export UNICLUST_VERSION=uniclust30_2018_08
+
+##### Extra paths
+
+if [ -z ${DB_SHM_PATH} ]; then
+    echo "[warning] Cannot proceed without the existence of DB_SHM_PATH. Rectifying."
+    source ${CONDO_SCRIPTS}/setup.bash
+fi
+
+CAFA4_DATABASE=${DB_SHM_PATH}/${UNICLUST_VERSION}/${UNICLUST_VERSION}
+
+if [ ! -e $(dirname ${CAFA4_DATABASE}) ]; then
+    echo "[critical] Cannot proceed without the existence of ${CAFA4_DATABASE}."
+    exit 1
+fi
+
+
+## Paths for HMM guided alignment
+HH_INTEL=
+HHPATH=${HH_INTEL}
+
+## BLAST
+BLAST_BIN=
+
+## PSIPRED
+PSIPRED=
+PSIPRED_BIN=${PSIPRED}/bin
+PSIPRED_DATA=${PSIPRED}/data
+
+## SANN
+SANN=
+NNDB_HOME=
+
+## CCMpred
+CCMPRED_BIN=
