@@ -221,7 +221,7 @@ double **read_ss2(char *target, int Nres )
     double **ss2;
 
     ss2 = darray2(Nres, 3);
-    printf("[feature.read_ss2()] Spawned array of shape (%d, %d)", Nres, 3); 
+    //printf("[feature.read_ss2()] Spawned array of shape (%d, %d)", Nres, 3); 
 
     sprintf(filename,"%s.ss2",target);
     fp=fopen(filename, "r");
@@ -1242,8 +1242,8 @@ int main(int argc, char *argv[])
     omp_set_num_threads(Ncpu);
     printf("[feature] Ncpu: %d\n",Ncpu);
 
-    time(&time_0);
-    printf("[feature] %s",ctime(&time_0));
+    //time(&time_0);
+    //printf("[feature] %s",ctime(&time_0));
 
     seq=read_seq(target,&Nres);
     seqn=mod_seq(seq,Nres);
@@ -1251,7 +1251,7 @@ int main(int argc, char *argv[])
     printf("[feature] Nres: %d\n",Nres) ;
 
     ss2=read_ss2(target,Nres);
-    printf("[feature] SS2"); 
+    //printf("[feature] SS2"); 
  
     // for(i=0;i<Nres;i++) { printf("%4d %5.3f %5.3f %5.3f\n",i, ss2[i][0],ss2[i][1],ss2[i][2]); }
 
@@ -1323,8 +1323,8 @@ int main(int argc, char *argv[])
         rpas=(double) Npasinfo/(double)Nmsa;
     }
 
-    printf("Nmsa: %d dmsa: %f \n", Nmsa,dmsa);
-    printf("Npas: %d dpas: %f rpas: %f \n", Npasinfo,dpas,rpas);
+    printf("[feature] Nmsa: %d dmsa: %f \n", Nmsa,dmsa);
+    printf("[feature] Npas: %d dpas: %f rpas: %f \n", Npasinfo,dpas,rpas);
 
 
 //    profile=gen_profile(msa,Nres,Nmsa);

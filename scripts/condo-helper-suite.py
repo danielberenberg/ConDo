@@ -144,7 +144,10 @@ def generate_result(args):
     ran = False
     fw = 40
     for predfile in _locate_by_extension(args.session, '.prediction.npz'):
-        resultfile = predfile.with_suffix(".ConDo.tsv")
+        resultfile  = predfile.with_suffix().with_suffix(".ConDo.tsv")
+        domainfile  = predfile.with_suffix().with_suffix(".domains.tsv")
+        displayfile = predfile.with_suffix().with_suffix(".ConDo.txt")
+
         if resultfile.exists() and args.dont_overwrite: continue
 
         try:
@@ -186,12 +189,7 @@ def generate_result(args):
         # ====================== display ====================== #
         multidomain = False
         bounds = []
-       
-        print("[generate-result]")
-        print("================== ConDo Results ==================")
-        print(f"Session: {args.session}")
-        print(f"Sequence:\n{textwrap.fill(sequence, 60)}")
-        print(f"Length: {N}")
+        
         old = 0
         domains = []
         for lb, rb, sc in zip(lbounds, rbounds, lbound_scores):
@@ -203,19 +201,43 @@ def generate_result(args):
                 old = rb
     
         domains.append((old, N))
-        print("==================   Domains  =====================")
-        for i, domain in enumerate(domains,1):
-            print(f"{i}) {domain}")
+        displays = [displayfile, sys.stdout] if args.verbose else [displayfile]
 
+        print_files("================== ConDo Results ==================", files=displays)
+        print_files(f"Session: {args.session}", files=displays)
+        print_files(f"Sequence:\n{textwrap.fill(sequence, 60)}", files=displays)
+        print_files(f"Length: {N}", files=displays)
+        print_files("==================   Domains  =====================", files=displays)
 
-        if args.verbose: print(f"\tSample is multidomain: {multidomain}")
-        
+        with open(domainfile, 'w') as domainhandle:
+            print("domain_number", "start", "end", file=domainhandle, sep='\t')
+            for i, domain in enumerate(domains,1):
+                print_files(f"{i}) {domain}", files=displays)
+                print(i, *domain, sep='\t' file=domainhandle)
+
+        print_files(f"\tSample is multidomain: {multidomain}", files=displays)
+        bounds = list(bounds) 
         with open(resultfile, 'w') as results:
             print("position", "amino", "score", "on_domain_boundary", file=results, sep='\t')
             for idx, (amino, score) in enumerate(zip(sequence, scores), 1):
                 print(idx, amino, score, int(idx in bounds), file=results, sep='\t')
         ran = True
     return ran
+
+def print_files(*args, files=None, modes='a', **kwargs):
+    kwargs['file'] = None
+    assert isinstance(modes, (str, list))
+
+    if isinstance(modes, list):
+        assert len(modes) == len(files)
+    else:
+        modes = itertools.repeat(modes)
+    del kwargs['file']
+    for filename in (files or []):
+        if isinstance(filename, (str, Path)):
+            f = open(filename, mode)
+        print(*args, file=f, **kwargs) 
+
 
 
 routines = [gather, predict, generate_result]

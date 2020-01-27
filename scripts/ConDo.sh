@@ -12,6 +12,8 @@ PRFX="[main]"
 ###### Paths for ConDo.
 export CONDO_DIR=/mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
 CONDO_PATHS=${CONDO_DIR}/ConDo.PATH.djb
+
+# 
 source ${CONDO_PATHS} 
 echo "$PRFX Set all paths and variables."
 
@@ -27,7 +29,7 @@ usage() {
     echo "ConDo: CONtact based DOmain boundary prediction"
     echo "Usage: ${SCRIPT} <fasta> [OPTIONS ...]"
     echo "Options:"
-    echo "   -p PROCESSORS            the number of threads to run"
+    echo "   -t/--threads  THREADS   The number of threads to run for various alignment programs."
     echo "Output is directed to the directory containing <fasta>."
 
     echo "Return codes:"
@@ -36,8 +38,57 @@ usage() {
     echo -e "\t$POOR_INPUT := POOR_INPUT, the input was malformed or nonexistant."
 }
 
+###################### Command line processing #####################################
+TARGET_FASTA=$1
+TARGET_BASENAME=${1%.*}
+CONDO_SESSION=$(dirname ${TARGET_BASENAME})
+
+target=${TARGET_BASENAME}
+PARAMS=""
+while (( "$#" )); do
+    case "$1" in
+        -t|--threads)
+            NPROCESSORS=$2
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 1
+            ;;
+        --) # end argparse
+            shift
+            break
+            ;;
+        -*|--*=) # unsupported flags
+            echo "Error: unsupported flag: $1" >&2
+            exit 1
+            ;;
+        *)
+            PARAMS="${PARAMS} $1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z ${NPROCESSORS} ]; then
+    #np=$(nproc --all)
+    #NPROCESSORS=$(($np / 2 ))
+    NPROCESSORS=1
+fi
+
+if [ ! -e "${TARGET_FASTA}" ]; then
+    echo "$PRFX ${TARGET_FASTA} not found." 
+    usage
+    exit $POOR_INPUT
+fi
+
+CONDO_LOGS=${CONDO_SESSION}/logs
+mkdir -p ${CONDO_LOGS}
 
 ###################### Functions     #####################################
+# - Each function runs a different feature generation step.
+# - Some steps depend on others (psipred, ccmpred on hhblits)
+# - All of them use variables defined in the PRELUDE step 
 
 _notfound() {
     echo $1 $2 not found. Something may be wrong with $1. Returning $NO_OUTPUT. 
@@ -47,6 +98,8 @@ run_ccmpred() {
     local prefix="[ccmpred]"
 
     target=${1%.*} # remove extension 
+    logdir=$(dirname $target)/logs
+
     if [ $# -eq 1 ]; then
         NPROCESSORS=1
     else
@@ -59,7 +112,7 @@ run_ccmpred() {
     if [ $nalign -gt 5 ]; then
         if [ ! -s $target.ccmpred ]; then
             echo "$prefix Running ..."
-            ${CCMPRED_BIN}/ccmpred $target.aln $target.ccmpred -t ${NPROCESSORS} 
+            ${CCMPRED_BIN}/ccmpred $target.aln $target.ccmpred -t ${NPROCESSORS} > $logdir/ccmpred.log 
         else
              echo "$prefix Found ${target}.ccmpred. Skipping."
         fi
@@ -83,6 +136,7 @@ run_alignment() {
     prefix="[alignment]"
 
     local KEY=${1%.*} # remove extension 
+    logdir=$(dirname ${KEY})/logs
 
     if [ $# -eq 1 ]; then
         NPROCESSORS=1
@@ -94,14 +148,18 @@ run_alignment() {
         echo "${prefix} Skipping alignment, files exist and are not empty"
     else
         echo "${prefix} Generating alignment..."
-        ${HHPATH}/bin/hhblits -i ${KEY}.fasta -d ${CAFA4_DATABASE} -o ${KEY}.hhr -oa3m ${KEY}.a3m -e 0.01 -n 3 -cpu 1 -diff inf -cov 10 -Z 10000 -B 10000 
+        ${HHPATH}/bin/hhblits -i ${KEY}.fasta -d ${CAFA4_DATABASE} -o ${KEY}.hhr -oa3m ${KEY}.a3m -e 0.01 -n 3 -cpu 1 -diff inf -cov 10 -Z 10000 -B 10000 > ${logdir}/alignment.log 
     fi
-    
-    ${HHPATH}/scripts/reformat.pl a3m sto ${KEY}.a3m ${KEY}.align       # Generates .align file. Alignment in Stockholm format. 
-    ${HHPATH}/scripts/reformat.pl a3m a2m ${KEY}.a3m ${KEY}.a2m         # Generates .a2m file. Only difference is that gaps aligned to inserts may be omitted.
-    ${HHPATH}/scripts/reformat.pl -r ${KEY}.a2m ${KEY}.hmm.fas          # Generates .hmm.fas file. Removes lowercase residues.
 
-    ${PY3} ${CONDO_BIN}/aln.py ${KEY} # Generates a .aln file. (Removes all headers information from a2m file to generate one large alignment mat.
+    # Generates .align file. Alignment in Stockholm format. 
+    ${HHPATH}/scripts/reformat.pl a3m sto ${KEY}.a3m ${KEY}.align >> ${logdir}/reformat.log
+    # Generates .a2m file. Only difference is that gaps aligned to inserts may be omitted.
+    ${HHPATH}/scripts/reformat.pl a3m a2m ${KEY}.a3m ${KEY}.a2m >> ${logdir}/reformat.log 
+    # Generates .hmm.fas file. Removes lowercase residues.
+    ${HHPATH}/scripts/reformat.pl -r ${KEY}.a2m ${KEY}.hmm.fas >> ${logdir}/reformat.log
+    # Generates a .aln file. 
+    # (Removes all headers information from a2m file to generate one large alignment mat.
+    ${PY3} ${CONDO_BIN}/aln ${KEY} 
     
     if [ ! -s ${KEY}.aln ]; then
         _notfound ${prefix} ${KEY}.aln
@@ -116,6 +174,7 @@ run_blast() {
     local prefix="[blast]"
 
     target=${1%.*} # remove extension 
+    logdir=$(dirname $target)/logs
     if [ $# -eq 1 ]; then
         NPROCESSORS=1
     else
@@ -123,7 +182,7 @@ run_blast() {
     fi
 
     if [ ! -s "${target}.chk" ]; then  # run BLAST
-        ${BLAST_BIN}/blastpgp -b 0 -v 5000 -j 3 -h 0.001 -a ${NPROCESSORS} -d ${UNIREF90} -i $target.fasta -C $target.chk
+        ${BLAST_BIN}/blastpgp -b 0 -v 5000 -j 3 -h 0.001 -a ${NPROCESSORS} -d ${UNIREF90} -i $target.fasta -C $target.chk > ${logdir}/blast.log
     else
         echo "${target}.chk file found. Skipping BLAST."
     fi
@@ -180,6 +239,7 @@ run_sann() {
     local prefix="[sann]"
 
     target=${1%.*} # remove extension 
+    logdir=$(dirname $target)/logs
     if [ $# -eq 1 ]; then
         NPROCESSORS=1
     else
@@ -188,10 +248,10 @@ run_sann() {
     
     if [[ ! -s $target.a22 && ! -s $target.a3 ]]; then
         echo "$prefix Running mkchk2."
-        LOG=$(dirname $target)/gen_features.log
-        ${MKCHK2} ${target} --qij ${CONDO_DATA}/qij | tee -a ${LOG}
+        LOG=$logdir/sann.log
+        ${CONDO_BIN}/mkchk2 ${target} --qij ${CONDO_DATA}/qij | tee -a ${LOG}
         echo "$prefix Running sann.sh"
-        ${SANN}/bin/sann.sh ${target}.fasta ${NPROCESSORS}
+        ${SANN}/bin/sann.sh ${target}.fasta ${NPROCESSORS} >> ${logdir}/sann.log
     else
         echo "$prefix Found $target.a22 and $target.a3. Skipping this step."
     fi
@@ -215,6 +275,8 @@ run_feature() {
     local prefix="[feature]"
 
     target=${1%.*} # remove extension 
+    logdir=$(dirname $target)/logs
+
     if [ $# -eq 1 ]; then
         NPROCESSORS=1
     else
@@ -235,8 +297,6 @@ run_feature() {
 TARGET_FASTA=$1
 TARGET_BASENAME=${1%.*}
 CONDO_SESSION=$(dirname ${TARGET_BASENAME})
-CONDO_LOGS=${CONDO_SESSION}/logs
-mkdir -p ${CONDO_LOGS}
 
 target=${TARGET_BASENAME}
 PARAMS=""
@@ -273,6 +333,8 @@ if [ ! -e "${TARGET_FASTA}" ]; then
     exit $POOR_INPUT
 fi
 
+CONDO_LOGS=${CONDO_SESSION}/logs
+mkdir -p ${CONDO_LOGS}
 echo "$PRFX session=${CONDO_SESSION}, fasta=$TARGET_FASTA, threads=$NPROCESSORS"
 
 echo "$PRFX Starting hhblits."
@@ -317,8 +379,3 @@ CONF_CUT=1.4
 
 # make prediction
 ${CONDO_BIN}/condo-helper-suite run $(dirname ${target})
-
-#${PY3} ${CONDO_BIN}/gather_input.py ${target}
-#${PY3} ${CONDO_BIN}/prediction.py data_feature.dat.npz y_pred.dat.npz ${WEIGHT_FILE}
-#${PY3} ${CONDO_BIN}/gen_results.py ${target} ${CONF_CUT}
-
