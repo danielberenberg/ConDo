@@ -31,12 +31,23 @@ Contact based protein Domain boundary prediction method
 
 # Installation
 - Installing dependencies
-  - TODO
+  - _SANN_: Some in-house changes have been made. Inquire within for a working installation.
+  - _BLAST_, _PSIPRED_, and _HHblitz_: Follow installation instructions
 - Installing ConDo
-  - TODO
+  - Adjust paths `ConDo.PATH` to suite your environment.
+  - Adjust paths in `scripts/setup.bash` to suit your environment.
+    - The purpose of `scripts/setup.bash` is to copy the the UniClust directory to shared memory in order to allow
+      multiple processes to read from it in parallel quicker. This step may not suit your needs. To that end,
+      some slight finessing might be required in which you change `$DB_SHM_PATH` in `scripts/ConDo.sh` to `${UNICLUST_DKS_PATH}`.
+
+  - Inside of main ConDo directory, compile: `gcc src/feature.c -o bin/feature -lm -fopenmp -g`
+    - The `-g` sets debug symbols. Change `-g` to `-O2` for 2nd or performance optimization.
+
+# Notes
+- Absolute filepaths must be less than 1000 characters (due to memory allocation in embedded programs).
 
 # References
-Hong, Seung Hwan, Keehyoung Joo, and Jooyoung Lee. "ConDo: Protein domain boundary prediction using coevolutionary information." Bioinformatics (2018).
+Hong, Seung Hwan, Keehyoung Joo, and Jooyoung Lee. "ConDo: Protein domain boundary prediction using coevolutionary information." Bioinformatics (2018). [link](https://academic.oup.com/bioinformatics/article-abstract/35/14/2411/5221017?redirectedFrom=fulltext)
 
 ```bibtex
 @article{10.1093/bioinformatics/bty973,

@@ -34,7 +34,7 @@ srun cp -arp ${DB_DSK_PATH}/uniclust30_2018_08 ${DB_SHM_PATH}/
 srun tree /dev/shm/
 
 # Enter the working directory.
-cd /mnt/ceph/users/dberenberg/Nastyomics
+cd /mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
 
 # Run all the tasks.
-disBatch.py ConDoTasks
+disBatch.py -c 10 ConDoTestTasks
