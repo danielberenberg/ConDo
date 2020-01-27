@@ -25,10 +25,15 @@ SCRIPT="ConDo"
 ####################### INVOCATION   #####################################
 usage() {
     echo "ConDo: CONtact based DOmain boundary prediction"
-    echo "Usage: ${SCRIPT} <fasta> [OPTIONS ...]"
-    echo "Options:"
-    echo "   -p PROCESSORS            the number of threads to run"
-    echo "Output is directed to the directory containing <fasta>."
+    echo "Usage: ${SCRIPT} <fasta> [processors]"
+    echo -e "\t[processors] is either specified or defaulted to half of the total available processors."
+    echo "------------------------------"
+    echo -e "Generates features:"
+    echo -e "\tHHSearch  - HMM assisted multiple sequence alignment."
+    echo -e "\tCCMpred   - Residue-Residue contact prediction using sequence alignment."
+    echo -e "\tBLAST     - Position-specific scoring matrices against UniRef90."
+    echo -e "\tSANN      - Solvent accessibility prediction."
+    echo -e "\tPSIPRED   - Secondary structure prediction."
 
     echo "Return codes:"
     echo -e "\t$SUCCESS := SUCCESS, errorless."
@@ -239,32 +244,12 @@ CONDO_LOGS=${CONDO_SESSION}/logs
 mkdir -p ${CONDO_LOGS}
 
 target=${TARGET_BASENAME}
-PARAMS=""
-while (( "$#" )); do
-    case "$1" in
-        -t|--threads)
-            NPROCESSORS=$2
-            shift 2
-            ;;
-        --) # end argparse
-            shift
-            break
-            ;;
-        -*|--*=) # unsupported flags
-            echo "Error: unsupported flag: $1" >&2
-            exit 1
-            ;;
-        *)
-            PARAMS="${PARAMS} $1"
-            shift
-            ;;
-    esac
-done
 
-if [ -z ${NPROCESSORS} ]; then
-    #np=$(nproc --all)
-    #NPROCESSORS=$(($np / 2 ))
-    NPROCESSORS=1
+if [ $# -eq 1 ]; then
+    np=$(nproc --all)
+    NPROCESSORS=$(($np / 2 ))
+else
+    NPROCESSORS=$2
 fi
 
 if [ ! -e "${TARGET_FASTA}" ]; then
@@ -305,8 +290,10 @@ if [ $? -gt $SUCCESS ]; then
     exit $?
 fi
 
-# prediction
+############### run prediction
 module unload intel/compiler/2019-3 intel/mkl/2019-3
+
+# for TensorFlow
 
 run_feature $target ${NPROCESSORS}
 if [ $? -gt $SUCCESS ]; then
