@@ -13,9 +13,10 @@ PRFX="[main]"
 export CONDO_DIR=/mnt/ceph/users/dberenberg/Nastyomics/DomainPrediction/ConDo
 CONDO_PATHS=${CONDO_DIR}/ConDo.PATH.djb
 
-# 
 source ${CONDO_PATHS} 
 echo "$PRFX Set all paths and variables."
+
+PY3=`which python`
 
 # error codes
 SUCCESS=0
@@ -39,11 +40,18 @@ usage() {
 }
 
 ###################### Command line processing #####################################
-TARGET_FASTA=$1
+TARGET_FASTA=$(realpath $1)
 TARGET_BASENAME=${1%.*}
-CONDO_SESSION=$(dirname ${TARGET_BASENAME})
+_DIR=$(dirname $TARGET_FASTA)
+_FAS=$(basename $TARGET_FASTA)
 
-target=${TARGET_BASENAME}
+CONDO_SESSION=${_DIR}/ConDo_results
+CONDO_LOGS=${CONDO_SESSION}/logs
+mkdir -p ${CONDO_LOGS}
+
+target=${CONDO_SESSION}/${_FAS}
+cp ${TARGET_FASTA} ${target}
+
 PARAMS=""
 while (( "$#" )); do
     case "$1" in
@@ -82,8 +90,6 @@ if [ ! -e "${TARGET_FASTA}" ]; then
     exit $POOR_INPUT
 fi
 
-CONDO_LOGS=${CONDO_SESSION}/logs
-mkdir -p ${CONDO_LOGS}
 
 ###################### Functions     #####################################
 # - Each function runs a different feature generation step.
@@ -148,7 +154,7 @@ run_alignment() {
         echo "${prefix} Skipping alignment, files exist and are not empty"
     else
         echo "${prefix} Generating alignment..."
-        ${HHPATH}/bin/hhblits -i ${KEY}.fasta -d ${CAFA4_DATABASE} -o ${KEY}.hhr -oa3m ${KEY}.a3m -e 0.01 -n 3 -cpu 1 -diff inf -cov 10 -Z 10000 -B 10000 > ${logdir}/alignment.log 
+        ${HHPATH}/bin/hhblits -i ${KEY}.fasta -d ${CAFA4_DATABASE} -o ${KEY}.hhr -oa3m ${KEY}.a3m -e 0.01 -n 3 -cpu 1 -diff inf -cov 10 -Z 10000 -B 10000 >& ${logdir}/alignment.log 
     fi
 
     # Generates .align file. Alignment in Stockholm format. 
@@ -251,7 +257,9 @@ run_sann() {
         LOG=$logdir/sann.log
         ${CONDO_BIN}/mkchk2 ${target} --qij ${CONDO_DATA}/qij | tee -a ${LOG}
         echo "$prefix Running sann.sh"
-        ${SANN}/bin/sann.sh ${target}.fasta ${NPROCESSORS} >> ${logdir}/sann.log
+
+        echo "${SANN}/bin/sann.sh ${target}.fasta ${NPROCESSORS}"
+        ${SANN}/bin/sann.sh ${target}.fasta ${NPROCESSORS}
     else
         echo "$prefix Found $target.a22 and $target.a3. Skipping this step."
     fi
@@ -293,49 +301,22 @@ run_feature() {
 }
 
 
-###################### Command line processing #####################################
-TARGET_FASTA=$1
-TARGET_BASENAME=${1%.*}
-CONDO_SESSION=$(dirname ${TARGET_BASENAME})
 
-target=${TARGET_BASENAME}
-PARAMS=""
-while (( "$#" )); do
-    case "$1" in
-        -t|--threads)
-            NPROCESSORS=$2
-            shift 2
-            ;;
-        --) # end argparse
-            shift
-            break
-            ;;
-        -*|--*=) # unsupported flags
-            echo "Error: unsupported flag: $1" >&2
-            exit 1
-            ;;
-        *)
-            PARAMS="${PARAMS} $1"
-            shift
-            ;;
-    esac
-done
-
-if [ -z ${NPROCESSORS} ]; then
-    #np=$(nproc --all)
-    #NPROCESSORS=$(($np / 2 ))
-    NPROCESSORS=1
-fi
-
-if [ ! -e "${TARGET_FASTA}" ]; then
-    echo "$PRFX ${TARGET_FASTA} not found." 
+if [ ! -e "${target}" ]; then
+    echo "$PRFX ${target} not found." 
     usage
     exit $POOR_INPUT
 fi
 
+${PY3} ${CONDO_SCRIPTS}/standardize_fasta.py ${target}
+echo "$PRFX Standardized FASTA file."
+if [ $? -gt $SUCCESS ]; then
+    exit $?
+fi
+
 CONDO_LOGS=${CONDO_SESSION}/logs
 mkdir -p ${CONDO_LOGS}
-echo "$PRFX session=${CONDO_SESSION}, fasta=$TARGET_FASTA, threads=$NPROCESSORS"
+echo "$PRFX session=${CONDO_SESSION}, fasta=$target, threads=$NPROCESSORS"
 
 echo "$PRFX Starting hhblits."
 run_alignment $target ${NPROCESSORS}
@@ -378,4 +359,5 @@ fi
 CONF_CUT=1.4
 
 # make prediction
-${CONDO_BIN}/condo-helper-suite run $(dirname ${target})
+${CONDO_BIN}/condo-helper-suite -v run $(dirname ${target})
+echo "$PRFX Done! Check ${CONDO_SESSION} for predictions and output files."

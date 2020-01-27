@@ -156,7 +156,7 @@ void print_time(time_t time_0)
 char *read_seq(char *target, int *Nres )
 {
     FILE *fp;
-    char filename[100];
+    char filename[1000];
     char line[maxline];
     char line2[maxline];
     char *seq;
@@ -213,7 +213,7 @@ int *mod_seq(char *seq, int Nres)
 double **read_ss2(char *target, int Nres )
 {
     FILE *fp;
-    char filename[100];
+    char filename[1000];
     char line[maxline];
     int i,j;
     char *eof;
@@ -253,7 +253,7 @@ double **read_ss2(char *target, int Nres )
 double **read_sa2(char *target, int Nres )
 {
     FILE *fp;
-    char filename[100];
+    char filename[1000];
     char line[maxline];
     int i,j;
     char *eof;
@@ -357,7 +357,7 @@ void find_inifin(char line[], int *ini, int *fin)
 
 int find_Nmsa(char *target) {
     FILE *fp;
-    char filename[100];
+    char filename[1000];
     char line[maxline];
     int k;
 
@@ -378,7 +378,7 @@ int find_Nmsa(char *target) {
 void read_msa(char *target, int **msa, int **msa2, int *pasinfo, int Nres, int Nmsa)
 {
     FILE *fp;
-    char filename[100];
+    char filename[1000];
     char line[maxline];
     int i,j,k, l;
     int ini, fin;
@@ -473,7 +473,7 @@ double **read_profile(char *target, int Nres)
 {
 
     FILE *fp;
-    char filename[100];
+    char filename[1000];
     char line[maxline];
     char *ptr;
 
@@ -928,7 +928,7 @@ double **read_ccmpred(char *target, int Nres)
 {
 
     FILE *fp;
-    char filename[100];
+    char filename[1000];
     char line[maxline];
 
     double **ccmpred;
@@ -1172,8 +1172,8 @@ int main(int argc, char *argv[])
 
     FILE *fp_PAS, *fp_PAS2, *fp_PAS3 ;
 
-    char out_feature[100];
-    char out_feature2[100];
+    char out_feature[1000];
+    char out_feature2[1000];
 
     char *target ;
     char *seq, line[maxline] ;
@@ -1204,8 +1204,8 @@ int main(int argc, char *argv[])
 
     int Npasinfo;
 
-    char out_PAS[100], out_PAS2[100], out_PAS3[100] ;
-    char out_ccm[100], out_community[100];
+    char out_PAS[1000], out_PAS2[1000], out_PAS3[1000] ;
+    char out_ccm[1000], out_community[1000];
    
     double ccc,ccc2 ;
     double Nter, Cter, NCter;

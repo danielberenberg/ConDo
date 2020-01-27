@@ -10,7 +10,11 @@ else
     DB_DSK_PATH=${UNICLUST_DSK}
 fi
 
-export DB_SHM_PATH=/dev/shm/dberenberg/condo/Databases
+if [ ! -z ${SLURM_JOB_USER} && ! -z ${SLURM_JOB_ID} ]; then
+    export DB_SHM_PATH=/dev/shm/${SLURM_JOB_USER}/${SLURM_JOB_ID}/Databases
+else
+    export DB_SHM_PATH=/dev/shm/${USER}/condo/Databases
+fi
 echo "$prefix DB_SHM_PATH=${DB_SHM_PATH}"
 
 # make a dir n the shared memory on each node

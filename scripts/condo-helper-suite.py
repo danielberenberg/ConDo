@@ -144,9 +144,9 @@ def generate_result(args):
     ran = False
     fw = 40
     for predfile in _locate_by_extension(args.session, '.prediction.npz'):
-        resultfile  = predfile.with_suffix().with_suffix(".ConDo.tsv")
-        domainfile  = predfile.with_suffix().with_suffix(".domains.tsv")
-        displayfile = predfile.with_suffix().with_suffix(".ConDo.txt")
+        resultfile  = predfile.with_suffix('').with_suffix(".ConDo.tsv")
+        domainfile  = predfile.with_suffix('').with_suffix(".domains.tsv")
+        displayfile = predfile.with_suffix('').with_suffix(".ConDo.txt")
 
         if resultfile.exists() and args.dont_overwrite: continue
 
@@ -213,7 +213,7 @@ def generate_result(args):
             print("domain_number", "start", "end", file=domainhandle, sep='\t')
             for i, domain in enumerate(domains,1):
                 print_files(f"{i}) {domain}", files=displays)
-                print(i, *domain, sep='\t' file=domainhandle)
+                print(i, *domain, sep='\t', file=domainhandle)
 
         print_files(f"\tSample is multidomain: {multidomain}", files=displays)
         bounds = list(bounds) 
@@ -233,9 +233,12 @@ def print_files(*args, files=None, modes='a', **kwargs):
     else:
         modes = itertools.repeat(modes)
     del kwargs['file']
-    for filename in (files or []):
+    for filename, mode in zip(files or [], modes):
+    
         if isinstance(filename, (str, Path)):
             f = open(filename, mode)
+        else:
+            f = filename
         print(*args, file=f, **kwargs) 
 
 

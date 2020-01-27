@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import array
 
-SANN_HOME = os.environ.get("SANN")
+SANN_HOME = Path(os.environ.get("SANN"))
 QIJ       = str(SANN_HOME / 'bin' / 'qij')
 
 mapping=[0,4,3,6,13,7,8,9,11,10,12,2,14,5,1,15,16,19,17,18]
